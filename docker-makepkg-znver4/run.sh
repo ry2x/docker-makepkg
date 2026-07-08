@@ -35,7 +35,7 @@ fi
 # AUR dependencies) and then build the package.
 ## USE PARU FOR AUR PACKAGES
 if [ -n "$USE_PARU" ]; then
-    paru -U --noconfirm --cleanafter
+    paru -U --noconfirm
 else
     makepkg -sc --skipinteg --noconfirm --log || true
 fi
