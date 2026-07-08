@@ -7,13 +7,8 @@ used by packagers, both via CI, and on non-ArchLinux environments.
 The package can be saved to the current director by adding `-e EXPORT_PKG=1`,
 and the updated .SRCINFO file for the built package with `-e EXPORT_SRCINFO=1`.
 
-# v3 / v4
+# znver4
 
-Depending, on which repository you want to build against, you choose simply between:
-
-- docker-makepkg (generic)
-- docker-makepkg-v3 (x86-64-v3 / avx2)
-- docker-makepkg-v4 (x86-64-v4 / avx512)
 - docker-makepkg-znver4 (Zen 4 Optimized)
 
 # Usage
@@ -21,15 +16,23 @@ Depending, on which repository you want to build against, you choose simply betw
 ## Start to compile in the directory of the PKGBUILD
 
 ```
-time docker run --name dockerbuilder -e EXPORT_PKG=1 -e SYNC_DATABASE=1 -v $PWD:/pkg ry2x/docker-makepkg-znver4 && docker rm dockerbuilder
+time docker run --privileged --name dockerbuilder -e EXPORT_PKG=1 -e SYNC_DATABASE=1 -v $PWD:/pkg ry2x/docker-makepkg-znver4 && docker rm dockerbuilder
 ```
 
 Replace the `ry2x/docker-makepkg-znver4` with the version you want to use, for example `ry2x/docker-makepkg-v3` to build for and against the x86-64-v3 repository.
 
+If your package has dependencies from the AUR (e.g., `lib32-gst-plugins-base-libs`), you must use paru by adding `-e USE_PARU=1`:
+
+```
+time docker run --privileged --name dockerbuilder -e EXPORT_PKG=1 -e SYNC_DATABASE=1 -e USE_PARU=1 -v $PWD:/pkg ry2x/docker-makepkg-znver4 && docker rm dockerbuilder
+```
+
+**Note:** The `--privileged` flag is required because recent versions of `pacman` use network namespaces for sandboxing hooks (like `fontconfig`), which will fail with "Operation not permitted" inside a standard Docker container.
+
 Or export the updated .SRCINFO for the package
 
 ```
-time docker run --name dockerbuilder -e EXPORT_PKG=1 -e SYNC_DATABASE=1 -e EXPORT_SRCINFO=1 -v $PWD:/pkg ry2x/docker-makepkg-znver4 && docker rm dockerbuilder
+time docker run --privileged --name dockerbuilder -e EXPORT_PKG=1 -e SYNC_DATABASE=1 -e EXPORT_SRCINFO=1 -v $PWD:/pkg ry2x/docker-makepkg-znver4 && docker rm dockerbuilder
 ```
 
 ## Build the image
